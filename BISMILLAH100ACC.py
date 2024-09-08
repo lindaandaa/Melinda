@@ -252,7 +252,7 @@ class EGM_GUI:
             draw = ImageDraw.Draw(img)
             
             # Set font size and color (you can adjust this based on the image size)
-            font = ImageFont.truetype("arial.ttf", 12)  # Use a proper font path if required
+            font = ImageFont.truetype("arial.ttf", 14)  # Use a proper font path if required
 
             # Define text (mean amplitude and status)
             result_text = self.result_label.cget("text")
