@@ -13,6 +13,7 @@ from scipy.fft import fft
 import scipy.signal as sig
 from scipy.interpolate import interp1d
 import random
+from PIL import ImageDraw, ImageFont
 
 class EGM_GUI:
     def __init__(self, root):
@@ -234,7 +235,7 @@ class EGM_GUI:
     def save_image(self):
         try:
             # Membuat folder "data skripsi bismillah" di drive D jika belum ada
-            folder_path = "D:/data skripsi bismillah"
+            folder_path = "record/plot"
             if not os.path.exists(folder_path):
                 os.makedirs(folder_path, exist_ok=True)
             
@@ -242,10 +243,27 @@ class EGM_GUI:
             now = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
             filename = os.path.join(folder_path, f"plot_{now}.png")
             
-            # Menyimpan gambar
+            # Save plot as image
             self.fig.savefig(filename)
-            print(f"Image saved to {filename}")
+
+            # Load the saved image and add text (result_data)
+            img = Image.open(filename)
+            draw = ImageDraw.Draw(img)
             
+            # Set font size and color (you can adjust this based on the image size)
+            font = ImageFont.truetype("arial.ttf", 24)  # Use a proper font path if required
+
+            # Define text (mean amplitude and status)
+            result_text = self.result_label.cget("text")
+            status_text = self.status_label.cget("text")
+
+            # Add text to the image (at position x, y)
+            draw.text((10, 10), result_text, font=font, fill="black")  # Add result text
+            draw.text((10, 50), status_text, font=font, fill="black")  # Add status text
+
+            # Save the modified image with the text
+            img.save(filename)
+
             # Menampilkan pesan konfirmasi
             messagebox.showinfo("Save Image", f"Image saved successfully to {filename}")
         except Exception as e:
@@ -253,7 +271,7 @@ class EGM_GUI:
 
 
     def save_data(self):
-        os.makedirs("record", exist_ok=True)
+        os.makedirs("record/data", exist_ok=True)
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         filename = f"record/data_{timestamp}.csv"
         df = pd.DataFrame({
