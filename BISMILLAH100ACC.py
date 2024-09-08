@@ -243,6 +243,7 @@ class EGM_GUI:
             now = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
             filename = os.path.join(folder_path, f"plot_{now}.png")
             
+            
             # Save plot as image
             self.fig.savefig(filename)
 
@@ -251,7 +252,7 @@ class EGM_GUI:
             draw = ImageDraw.Draw(img)
             
             # Set font size and color (you can adjust this based on the image size)
-            font = ImageFont.truetype("arial.ttf", 24)  # Use a proper font path if required
+            font = ImageFont.truetype("arial.ttf", 12)  # Use a proper font path if required
 
             # Define text (mean amplitude and status)
             result_text = self.result_label.cget("text")
@@ -259,7 +260,7 @@ class EGM_GUI:
 
             # Add text to the image (at position x, y)
             draw.text((10, 10), result_text, font=font, fill="black")  # Add result text
-            draw.text((10, 50), status_text, font=font, fill="black")  # Add status text
+            draw.text((10, 25), status_text, font=font, fill="black")  # Add status text
 
             # Save the modified image with the text
             img.save(filename)
