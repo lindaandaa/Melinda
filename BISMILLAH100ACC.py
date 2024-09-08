@@ -42,7 +42,7 @@ class EGM_GUI:
         self.title_label.pack(side=tk.LEFT, padx=10, expand=True, fill=tk.Y)
 
         # Serial communication setup
-        self.serial_port = serial.Serial('COM6', 9600)  # Sesuaikan dengan port Arduino Anda
+        # self.serial_port = serial.Serial('COM6', 9600)  # Sesuaikan dengan port Arduino Anda
 
         # Menu bar
         self.navbar = tk.Menu(root,  bg="alice blue", fg="black", font=("Helvetica", 11, "bold"))
@@ -186,51 +186,51 @@ class EGM_GUI:
 
         # Automatic save interval
         self.save_interval_ms = 3 * 60 * 1000  # Save data every 3 minutes
-        self.periodic_save()
-
-    def animation(self):
-        def update_plot():
-            if self.animation_running:
-                data = self.serial_port.readline().decode('ascii').strip()
-                if data:
-                    value = float(data)
-                    self.data1.append(value)
-
-                    b, a = sig.butter(4, 0.1, 'low')
-                    filter_sig = sig.lfilter(b, a, self.data1)
-                    self.data2.append(filter_sig[-1])
-
-                    self.line1.set_data(range(len(self.data1)), self.data1)
-                    self.ax1.relim()
-                    self.ax1.autoscale_view()
-                    self.canvas.draw()
-                    self.canvas.flush_events()
-
-                self.root.after(10, update_plot)
-
-        update_plot()
-
+        self.root.after(self.save_interval_ms, self.periodic_save)
 
     # def animation(self):
     #     def update_plot():
     #         if self.animation_running:
-    #             # Mengganti data dari serial port dengan data acak
-    #             value = random.uniform(0, 5)  # Menghasilkan angka acak antara 0 dan 5
-    #             self.data1.append(value)
+    #             data = self.serial_port.readline().decode('ascii').strip()
+    #             if data:
+    #                 value = float(data)
+    #                 self.data1.append(value)
 
-    #             b, a = sig.butter(4, 0.1, 'low')
-    #             filter_sig = sig.lfilter(b, a, self.data1)
-    #             self.data2.append(filter_sig[-1])
+    #                 b, a = sig.butter(4, 0.1, 'low')
+    #                 filter_sig = sig.lfilter(b, a, self.data1)
+    #                 self.data2.append(filter_sig[-1])
 
-    #             self.line1.set_data(range(len(self.data1)), self.data1)
-    #             self.ax1.relim()
-    #             self.ax1.autoscale_view()
-    #             self.canvas.draw()
-    #             self.canvas.flush_events()
+    #                 self.line1.set_data(range(len(self.data1)), self.data1)
+    #                 self.ax1.relim()
+    #                 self.ax1.autoscale_view()
+    #                 self.canvas.draw()
+    #                 self.canvas.flush_events()
 
     #             self.root.after(10, update_plot)
 
     #     update_plot()
+
+
+    def animation(self):
+        def update_plot():
+            if self.animation_running:
+                # Mengganti data dari serial port dengan data acak
+                value = random.uniform(0, 5)  # Menghasilkan angka acak antara 0 dan 5
+                self.data1.append(value)
+
+                b, a = sig.butter(4, 0.1, 'low')
+                filter_sig = sig.lfilter(b, a, self.data1)
+                self.data2.append(filter_sig[-1])
+
+                self.line1.set_data(range(len(self.data1)), self.data1)
+                self.ax1.relim()
+                self.ax1.autoscale_view()
+                self.canvas.draw()
+                self.canvas.flush_events()
+
+                self.root.after(10, update_plot)
+
+        update_plot()
 
     def save_image(self):
         try:
@@ -272,19 +272,37 @@ class EGM_GUI:
 
 
     def save_data(self):
-        os.makedirs("record/data", exist_ok=True)
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        filename = f"record/data_{timestamp}.csv"
-        df = pd.DataFrame({
-            'Time': range(len(self.data1)),
-            'EGM Signal 1': list(self.data1),
-            'EGM Signal 2': list(self.data2)
-        })
-        if os.path.exists(filename):
-            df_existing = pd.read_csv(filename)
-            df = pd.concat([df_existing, df], ignore_index=True)
-        df.to_csv(filename, index=False)
-        print(f"Data saved to {filename}")
+        try:
+            folder_path = "record/data"
+            if not os.path.exists(folder_path):
+                os.makedirs(folder_path, exist_ok=True)
+            now = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+            filename = os.path.join(folder_path, f"data_{now}.csv")
+            
+            # Ensure both data1 and data2 have the same length
+            min_length = min(len(self.data1), len(self.data2))
+            trimmed_data1 = list(self.data1)[:min_length]
+            trimmed_data2 = list(self.data2)[:min_length]
+
+            df = pd.DataFrame({
+                'Time': range(min_length),
+                'EGM Signal 1': trimmed_data1,
+                'EGM Signal 2': trimmed_data2
+            })
+
+            if os.path.exists(filename):
+                df_existing = pd.read_csv(filename)
+                df = pd.concat([df_existing, df], ignore_index=True)
+
+            df.to_csv(filename, index=False)
+            print(f"Data saved to {filename}")
+            messagebox.showinfo("Save Data", f"Data saved successfully to {filename}")
+        except Exception as e:
+            messagebox.showerror("Save Data Error", f"Failed to save data: {e}")
+            print(self.data1)
+            print(self.data2)
+
+
 
     def periodic_save(self):
         self.save_data()
@@ -303,19 +321,33 @@ class EGM_GUI:
     def plot_excel_data(self, df):
         self.data1.clear()
         self.data2.clear()
+        
         if 'EGM Signal 1' in df.columns and 'EGM Signal 2' in df.columns:
             self.data1.extend(df['EGM Signal 1'])
-            self.data2.extend(df['EGM Signal 2'])
+            
+            # Cek apakah kolom "EGM Signal 2" mengandung NaN atau kosong
+            if df['EGM Signal 2'].isnull().any():
+                # Jika ada NaN, hitung FFT dan mean untuk data dari "EGM Signal 1"
+                self.calculate_fft_and_mean()
+            else:
+                # Jika tidak ada NaN, lanjutkan plot seperti biasa
+                self.data2.extend(df['EGM Signal 2'])
+            
+            # Set data untuk plot
+            self.line1.set_data(range(len(self.data1)), self.data1)
+            self.line2.set_data(range(len(self.data2)), self.data2)
+            
         else:
             messagebox.showerror("Error", "The Excel file does not contain the required columns")
-        self.line1.set_data(range(len(self.data1)), self.data1)
-        self.line2.set_data(range(len(self.data2)), self.data2)
+
+        # Refresh grafik
         self.ax1.relim()
         self.ax1.autoscale_view()
         self.ax2.relim()
         self.ax2.autoscale_view()
         self.canvas.draw()
         self.canvas.flush_events()
+
 
     def start(self):
         if not self.animation_running:
