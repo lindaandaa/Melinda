@@ -278,7 +278,7 @@ class EGM_GUI:
         df = pd.DataFrame({
             'Time': range(len(self.data1)),
             'EGM Signal 1': list(self.data1),
-            'EGM Signal 2': list(self.data1)
+            'EGM Signal 2': list(self.data2)
         })
         if os.path.exists(filename):
             df_existing = pd.read_csv(filename)
