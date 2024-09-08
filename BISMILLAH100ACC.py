@@ -42,7 +42,7 @@ class EGM_GUI:
         self.title_label.pack(side=tk.LEFT, padx=10, expand=True, fill=tk.Y)
 
         # Serial communication setup
-        # self.serial_port = serial.Serial('COM6', 9600)  # Sesuaikan dengan port Arduino Anda
+        self.serial_port = serial.Serial('COM6', 9600)  # Sesuaikan dengan port Arduino Anda
 
         # Menu bar
         self.navbar = tk.Menu(root,  bg="alice blue", fg="black", font=("Helvetica", 11, "bold"))
@@ -188,49 +188,49 @@ class EGM_GUI:
         self.save_interval_ms = 3 * 60 * 1000  # Save data every 3 minutes
         self.root.after(self.save_interval_ms, self.periodic_save)
 
-    # def animation(self):
-    #     def update_plot():
-    #         if self.animation_running:
-    #             data = self.serial_port.readline().decode('ascii').strip()
-    #             if data:
-    #                 value = float(data)
-    #                 self.data1.append(value)
-
-    #                 b, a = sig.butter(4, 0.1, 'low')
-    #                 filter_sig = sig.lfilter(b, a, self.data1)
-    #                 self.data2.append(filter_sig[-1])
-
-    #                 self.line1.set_data(range(len(self.data1)), self.data1)
-    #                 self.ax1.relim()
-    #                 self.ax1.autoscale_view()
-    #                 self.canvas.draw()
-    #                 self.canvas.flush_events()
-
-    #             self.root.after(10, update_plot)
-
-    #     update_plot()
-
-
     def animation(self):
         def update_plot():
             if self.animation_running:
-                # Mengganti data dari serial port dengan data acak
-                value = random.uniform(0, 5)  # Menghasilkan angka acak antara 0 dan 5
-                self.data1.append(value)
+                data = self.serial_port.readline().decode('ascii').strip()
+                if data:
+                    value = float(data)
+                    self.data1.append(value)
 
-                b, a = sig.butter(4, 0.1, 'low')
-                filter_sig = sig.lfilter(b, a, self.data1)
-                self.data2.append(filter_sig[-1])
+                    b, a = sig.butter(4, 0.1, 'low')
+                    filter_sig = sig.lfilter(b, a, self.data1)
+                    self.data2.append(filter_sig[-1])
 
-                self.line1.set_data(range(len(self.data1)), self.data1)
-                self.ax1.relim()
-                self.ax1.autoscale_view()
-                self.canvas.draw()
-                self.canvas.flush_events()
+                    self.line1.set_data(range(len(self.data1)), self.data1)
+                    self.ax1.relim()
+                    self.ax1.autoscale_view()
+                    self.canvas.draw()
+                    self.canvas.flush_events()
 
                 self.root.after(10, update_plot)
 
         update_plot()
+
+
+    # def animation(self):
+    #     def update_plot():
+    #         if self.animation_running:
+    #             # Mengganti data dari serial port dengan data acak
+    #             value = random.uniform(0, 5)  # Menghasilkan angka acak antara 0 dan 5
+    #             self.data1.append(value)
+
+    #             b, a = sig.butter(4, 0.1, 'low')
+    #             filter_sig = sig.lfilter(b, a, self.data1)
+    #             self.data2.append(filter_sig[-1])
+
+    #             self.line1.set_data(range(len(self.data1)), self.data1)
+    #             self.ax1.relim()
+    #             self.ax1.autoscale_view()
+    #             self.canvas.draw()
+    #             self.canvas.flush_events()
+
+    #             self.root.after(10, update_plot)
+
+    #     update_plot()
 
     def save_image(self):
         try:
