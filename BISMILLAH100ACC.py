@@ -42,7 +42,7 @@ class EGM_GUI:
         self.title_label.pack(side=tk.LEFT, padx=10, expand=True, fill=tk.Y)
 
         # Serial communication setup
-        # self.serial_port = serial.Serial('COM6', 9600)  # Sesuaikan dengan port Arduino Anda
+        self.serial_port = serial.Serial('COM6', 9600)  # Sesuaikan dengan port Arduino Anda
 
         # Menu bar
         self.navbar = tk.Menu(root,  bg="alice blue", fg="black", font=("Helvetica", 11, "bold"))
