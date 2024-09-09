@@ -336,6 +336,9 @@ class EGM_GUI:
                 # Jika tidak ada NaN, lanjutkan plot seperti biasa
                 self.data2.extend(df['EGM Signal 2'])
             
+            # Filter data1 untuk mendapatkan data2 menggunakan Butterworth filter
+            self.apply_filter_to_data1()
+
             # Set data untuk plot
             self.line1.set_data(range(len(self.data1)), self.data1)
             self.line2.set_data(range(len(self.data2)), self.data2)
@@ -351,6 +354,11 @@ class EGM_GUI:
         self.canvas.draw()
         self.canvas.flush_events()
 
+    def apply_filter_to_data1(self):
+        # Menerapkan Butterworth low-pass filter ke self.data1
+        if len(self.data1) > 0:
+            b, a = sig.butter(4, 0.1, btype='low', analog=False)  # 4th order low-pass filter, 0.1 cut-off freq
+            self.data2 = sig.filtfilt(b, a, self.data1)  # Apply filter to data1
 
     def start(self):
         if not self.animation_running:
