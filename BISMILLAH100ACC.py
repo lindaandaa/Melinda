@@ -305,8 +305,6 @@ class EGM_GUI:
             print(self.data1)
             print(self.data2)
 
-
-
     def periodic_save(self):
         self.save_data()
         self.root.after(self.save_interval_ms, self.periodic_save)
