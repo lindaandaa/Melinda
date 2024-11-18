@@ -42,12 +42,11 @@ class EGM_GUI:
         self.title_label.pack(side=tk.LEFT, padx=10, expand=True, fill=tk.Y)
 
         # Serial communication setup
-        #Menghubungkan ke Arduino
         try:
             self.serial_port = serial.Serial('COM6', 9600)  # Sesuaikan dengan port Arduino Anda
         except:
             self.prompt_for_random()
-            
+
         # Menu bar
         self.navbar = tk.Menu(root,  bg="alice blue", fg="black", font=("Helvetica", 11, "bold"))
         root.config(menu=self.navbar)
@@ -193,33 +192,44 @@ class EGM_GUI:
         self.root.after(self.save_interval_ms, self.periodic_save)
 
 
-    #def prompt_for_random(self):
-     #   """ Prompt user if they want to continue with random data or quit the application """
-      #  answer = messagebox.askyesno("Arduino Not Detected", 
-       #                              "Arduino not detected. Do you want to continue using random numbers?")
-        #if answer:
-         #   self.use_random_data = True
-        #else:
-         #   self.root.destroy()
+    def prompt_for_random(self):
+        """ Prompt user if they want to continue with random data or quit the application """
+        answer = messagebox.askyesno("Arduino Not Detected", 
+                                     "Arduino not detected. Do you want to continue using random numbers?")
+        if answer:
+            self.use_random_data = True
+        else:
+            self.root.destroy()
 
 
     def animation(self):
         def update_plot():
             if self.animation_running:
-                data = self.serial_port.readline().decode('ascii').strip()
-                if data:
-                    value = float(data)
-                    self.data1.append(value)
+                if self.use_random_data:
+                    # Generate random data if Arduino is not connected
+                    value = random.uniform(0, 5)  # Generate random numbers between 0 and 5
+                else:
+                    # Read from Arduino
+                    try:
+                        data = self.serial_port.readline().decode('ascii').strip()
+                        if data:
+                            value = float(data)
+                    except Exception as e:
+                        messagebox.showerror("Error", f"Failed to read from Arduino: {e}")
+                        return
 
-                    b, a = sig.butter(4, 0.1, 'low')
-                    filter_sig = sig.lfilter(b, a, self.data1)
-                    self.data2.append(filter_sig[-1])
+                # Continue processing the signal
+                self.data1.append(value)
 
-                    self.line1.set_data(range(len(self.data1)), self.data1)
-                    self.ax1.relim()
-                    self.ax1.autoscale_view()
-                    self.canvas.draw()
-                    self.canvas.flush_events()
+                b, a = sig.butter(4, 0.1, 'low')
+                filter_sig = sig.lfilter(b, a, self.data1)
+                self.data2.append(filter_sig[-1])
+
+                self.line1.set_data(range(len(self.data1)), self.data1)
+                self.ax1.relim()
+                self.ax1.autoscale_view()
+                self.canvas.draw()
+                self.canvas.flush_events()
 
                 self.root.after(10, update_plot)
 
@@ -382,8 +392,8 @@ class EGM_GUI:
             self.status_label.config(text=f"Status Kondisi: {status}")
             
             # Set limits for the axes
-            self.ax2.set_xlim(-10, 1000)
-            self.ax2.set_ylim(-10, 25000)
+            self.ax2.set_xlim(-10, 500)
+            self.ax2.set_ylim(-10, 20000)
             
             
 

@@ -5,7 +5,10 @@ import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from scipy.io import wavfile
+import io
 import numpy as np
+import glob
 import pandas as pd
 import serial
 from collections import deque
@@ -42,12 +45,11 @@ class EGM_GUI:
         self.title_label.pack(side=tk.LEFT, padx=10, expand=True, fill=tk.Y)
 
         # Serial communication setup
-        #Menghubungkan ke Arduino
         try:
             self.serial_port = serial.Serial('COM6', 9600)  # Sesuaikan dengan port Arduino Anda
         except:
             self.prompt_for_random()
-            
+
         # Menu bar
         self.navbar = tk.Menu(root,  bg="alice blue", fg="black", font=("Helvetica", 11, "bold"))
         root.config(menu=self.navbar)

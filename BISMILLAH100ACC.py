@@ -236,6 +236,7 @@ class EGM_GUI:
         update_plot()
 
     def save_image(self):
+        """ Menyimpan gambar plot dengan status dan hasil analisis """
         try:
             # Membuat folder "data skripsi bismillah" di drive D jika belum ada
             folder_path = "record/plot"
@@ -275,6 +276,7 @@ class EGM_GUI:
 
 
     def save_data(self):
+        """ Menyimpan data grafik EMG dan FFT dalam format CSV"""
         try:
             folder_path = "record/data"
             if not os.path.exists(folder_path):
